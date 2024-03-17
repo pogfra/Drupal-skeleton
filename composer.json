@@ -1,0 +1,172 @@
+{
+    "name": "drupal/recommended-project",
+    "description": "Project template for Drupal projects with a relocated document root",
+    "type": "project",
+    "license": "GPL-2.0-or-later",
+    "homepage": "https://www.drupal.org/project/drupal",
+    "support": {
+        "docs": "https://www.drupal.org/docs/user_guide/en/index.html",
+        "chat": "https://www.drupal.org/node/314178"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+    ],
+    "require": {
+        "composer/installers": "^2.0",
+        "drupal/admin_toolbar": "^3.4",
+        "drupal/core-composer-scaffold": "^10.2",
+        "drupal/core-project-message": "^10.2",
+        "drupal/core-recommended": "^10.2",
+        "drupal/gin": "^3.0@RC",
+        "drush/drush": "^12.4",
+        "symfony/dotenv": "^6.4"
+    },
+    "require-dev": {
+        "drupal/devel": "^5.1"
+    },
+    "conflict": {
+        "drupal/drupal": "*"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "drupal/core-composer-scaffold": true,
+            "drupal/core-project-message": true,
+            "phpstan/extension-installer": true
+        },
+        "sort-packages": true
+    },
+    "extra": {
+        "drupal-scaffold": {
+            "locations": {
+                "web-root": "web/"
+            },
+            "file-mapping": {
+                "[web-root]/.csslintrc": false,
+                "[web-root]/.eslintignore": false,
+                "[web-root]/.eslintrc.json": false,
+                "[web-root]/web.config": false,
+                "[web-root]/.ht.router.php": false,
+                "[web-root]/example.gitignore": false,
+                "[web-root]/install.php": false,
+                "[web-root]/INSTALL.txt": false,
+                "[web-root]/README.txt": false,
+                "[web-root]/update.php": false,
+                "[web-root]/sites/.gitignore": false,
+                "[web-root]/sites/README.txt": false,
+                "[web-root]/sites/example.sites.php": false,
+                "[web-root]/sites/development.services.yml": false,
+                "[web-root]/sites/example.settings.local.php": false,
+                "[web-root]/sites/default/default.services.yml": false,
+                "[web-root]/sites/default/default.settings.php": false,
+                "[web-root]/modules/README.txt": false,
+                "[web-root]/profiles/README.txt": false,
+                "[web-root]/themes/README.txt": false
+            }
+        },
+        "installer-paths": {
+            "web/core": [
+                "type:drupal-core"
+            ],
+            "web/libraries/{$name}": [
+                "type:drupal-library"
+            ],
+            "web/modules/contrib/{$name}": [
+                "type:drupal-module"
+            ],
+            "web/profiles/contrib/{$name}": [
+                "type:drupal-profile"
+            ],
+            "web/themes/contrib/{$name}": [
+                "type:drupal-theme"
+            ],
+            "drush/Commands/contrib/{$name}": [
+                "type:drupal-drush"
+            ],
+            "web/modules/custom/{$name}": [
+                "type:drupal-custom-module"
+            ],
+            "web/profiles/custom/{$name}": [
+                "type:drupal-custom-profile"
+            ],
+            "web/themes/custom/{$name}": [
+                "type:drupal-custom-theme"
+            ]
+        }
+    },
+    "scripts": {
+        "site:prepare": [
+            "composer install",
+            "composer drupal:salt"
+        ],
+        "site:prepare-ci": [
+            "chmod -R 755 web/sites/default/",
+            "rm -rf web/sites/default/files",
+            "mkdir -p web/sites/default/files",
+            "chmod 775 web/sites/default/files"
+        ],
+        "site:install": [
+            "drush si -y --existing-config",
+            "drush cr",
+            "drush updb -y",
+            "drush cr"
+        ],
+        "drupal:update-db": [
+            "composer install",
+            "drush cr",
+            "drush updb -y",
+            "drush cr"
+        ],
+        "drupal:update-core": [
+            "composer update 'drupal/*' --with-all-dependencies",
+            "drush cr",
+            "drush updb -y",
+            "drush cr"
+        ],
+        "drupal:update-translations": [
+            "drush locale:check",
+            "drush locale:update"
+        ],
+        "drupal:search-api": [
+            "drush cr",
+            "drush search-api:rebuild-tracker",
+            "drush cr",
+            "drush search-api:index"
+        ],
+        "drupal:salt": "export HASH=$(drush php-eval 'echo \\Drupal\\Component\\Utility\\Crypt::randomBytesBase64(55);') && sed -i.bak \"s/^HASH_SALT=.*$/HASH_SALT=$HASH/g\" .env && rm .env.bak",
+        "deploy:dev": [
+            "drush cr",
+            "drush updb -y",
+            "drush cr",
+            "drush cim -y",
+            "drush cron",
+            "drush cr"
+        ],
+        "deploy:prod": [
+            "drush cr",
+            "drush state:set system.maintenance_mode 1",
+            "drush cr",
+            "drush updb -y",
+            "drush cr",
+            "drush cim -y",
+            "drush cron",
+            "drush cr",
+            "drush state:set system.maintenance_mode 0"
+        ],
+        "push:dev": "drush rsync @local:./ @dev --mode=rltpvz -- --delete  --force --exclude-from=ci/.rsync-exclude",
+        "push:dev-db": "drush sql:sync @local @dev",
+        "push:dev-files": "drush rsync @local:%files/ @dev:%files",
+        "pull:dev-db": "drush sql:sync @dev @local",
+        "pull:dev-files": "drush rsync @dev:%files/ @local:%files",
+        "push:prod": "drush rsync @local:./ @prod --mode=rltpvz -- --delete  --force --exclude-from=ci/.rsync-exclude",
+        "push:prod-db": "drush sql:sync @local @prod",
+        "push:prod-files": "drush rsync @local:%files/ @prod:%files",
+        "pull:prod-db": "drush sql:sync @prod @local",
+        "pull:prod-files": "drush rsync @prod:%files/ @local:%files"
+    }
+}

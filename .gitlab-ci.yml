@@ -1,0 +1,23 @@
+image: pogfra/app:php8.2
+
+include:
+    - 'ci/.variables.yml'
+    - 'ci/.tasks-build.yml'
+    - 'ci/.tasks-deploy.yml'
+
+# Ne pas jouer le pipeline
+# - pour les MR
+# - pour la branche master si le message de commit n'est pas 'Initial commit'
+workflow:
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+          when: never
+        - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $CI_COMMIT_MESSAGE !~ /Initial commit/'
+          when: never
+        - if: '$CI_COMMIT_REF_NAME =~ /^feature/'
+          when: never
+        - when: always
+
+stages:
+    - build
+    - deploy

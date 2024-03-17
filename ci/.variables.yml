@@ -1,0 +1,12 @@
+variables:
+    PROJECT_NAME: drupal-skeleton
+    SSH_HOST: 'example.com'
+    TESTS: 0
+
+    SSH_LOGIN: 'ssh -p22 -oStrictHostKeyChecking=no'
+
+    SSH: '${PROJECT_NAME}@${SSH_HOST}'
+    ENV_SSH_LOGIN: '${SSH_LOGIN} ${SSH}'
+
+    DEVELOP_ROOT: '/home/${PROJECT_NAME}/www/develop'
+    PRODUCTION_ROOT: '/home/${PROJECT_NAME}/www/production'

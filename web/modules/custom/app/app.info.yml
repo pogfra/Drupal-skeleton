@@ -1,0 +1,5 @@
+name: 'App'
+type: module
+description: 'The App module.'
+package: App
+core_version_requirement: ^10

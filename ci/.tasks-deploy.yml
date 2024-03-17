@@ -1,0 +1,62 @@
+################################################################################
+# Template
+# - La tâche build:dev doit être exécutée pour pouvoir déployer sur les envs dev / staging
+# - La tâche build:prod doit être exécutée pour pouvoir déployer sur l'env de prod
+################################################################################
+
+.deploy_template:
+    allow_failure: true
+    needs:
+        - job: build
+          artifacts: true
+    before_script:
+        - mkdir -p ~/.ssh
+        - chmod 700 ~/.ssh
+        - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+        - echo -e "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        - chmod 400 ~/.ssh/id_rsa
+    variables:
+        PRIVATE_KEY: '$SSH_PRIVATE_KEY'
+        DRUSH: vendor/bin/drush
+
+################################################################################
+# Deploy
+################################################################################
+
+# Develop
+
+deploy:dev:
+    stage: deploy
+    extends: .deploy_template
+    rules:
+        - if: '$CI_COMMIT_REF_NAME =~ /^develop$/'
+          when: manual
+        - when: never
+    script:
+        - rsync -avz --delete -e ssh composer.json ${SSH}:${DEVELOP_ROOT}/composer.json
+        - rsync -avz --delete -e ssh drush/ ${SSH}:${DEVELOP_ROOT}/drush/
+        - rsync -avz --delete -e ssh vendor/ ${SSH}:${DEVELOP_ROOT}/vendor/
+        - rsync -avz --delete -e ssh config/ ${SSH}:${DEVELOP_ROOT}/config/
+        - rsync -avz --delete --exclude-from='ci/.rsync-exclude' -e ssh web/ ${SSH}:${DEVELOP_ROOT}/web/
+        - ${ENV_SSH_LOGIN} "cd ${DEVELOP_ROOT} && composer deploy:dev"
+    environment:
+        name: dev
+
+# Production
+
+deploy:prod:
+    stage: deploy
+    extends: .deploy_template
+    rules:
+        - if: '$CI_COMMIT_TAG !~ "/^$/"'
+          when: on_success
+        - when: never
+    script:
+        - rsync -avz --delete -e ssh composer.json ${SSH}:${PRODUCTION_ROOT}/composer.json
+        - rsync -avz --delete -e ssh drush/ ${SSH}:${PRODUCTION_ROOT}/drush/
+        - rsync -avz --delete -e ssh vendor/ ${SSH}:${PRODUCTION_ROOT}/vendor/
+        - rsync -avz --delete -e ssh config/ ${SSH}:${PRODUCTION_ROOT}/config/
+        - rsync -avz --delete --exclude-from='ci/.rsync-exclude' -e ssh web/ ${SSH}:${PRODUCTION_ROOT}/web/
+        - ${ENV_SSH_LOGIN} "cd ${PRODUCTION_ROOT} && composer deploy:prod"
+    environment:
+        name: prod

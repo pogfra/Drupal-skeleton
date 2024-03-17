@@ -1,0 +1,13 @@
+global-styling:
+    version: 1.x
+    css:
+        theme:
+            dist/css/main.css: {}
+            public://custom.css: {}
+
+    js:
+        dist/js/main.js: {}
+
+    dependencies:
+        - core/drupal
+        - core/drupalSettings

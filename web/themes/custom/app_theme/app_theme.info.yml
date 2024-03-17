@@ -1,0 +1,21 @@
+name: App theme
+type: theme
+base theme: stable9
+description: The app theme
+package: App
+core: 8.x
+core_version_requirement: ^8 || ^9 || ^10
+libraries:
+    - app_theme/global-styling
+libraries-override:
+    core/modernizr: false
+    core/html5shiv: false
+ckeditor5-stylesheets:
+    - dist/css/ckeditor.css
+regions:
+    header: 'Header'
+    header_bottom: 'Header bottom'
+    content_top: 'Content top'
+    content: 'Content'
+    content_bottom: 'Content bottom'
+    footer: 'Footer'

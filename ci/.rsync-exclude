@@ -1,0 +1,11 @@
+.htaccess
+web/.htaccess
+sites/default/files
+sites/default/settings.php
+.git
+node_modules
+.DS_Store
+._*
+.idea
+.vscode
+.env

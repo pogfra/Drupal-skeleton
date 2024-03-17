@@ -1,0 +1,21 @@
+local:
+    root: /var/www/dev/drupal-skeleton
+    paths:
+        drush-script: '/var/www/dev/drupal-skeleton/vendor/bin/drush'
+        files: /var/www/dev/drupal-skeleton/web/sites/default/files
+
+dev:
+    root: /home/drupal-skeleton/www/develop
+    host: example.com
+    user: drupal-skeleton
+    paths:
+        drush-script: '/home/drupal-skeleton/www/develop/vendor/bin/drush'
+        files: /home/drupal-skeleton/www/develop/web/sites/default/files
+
+prod:
+    root: /home/drupal-skeleton/www/production
+    host: example.com
+    user: drupal-skeleton
+    paths:
+        drush-script: '/home/drupal-skeleton/www/production/vendor/bin/drush'
+        files: /home/drupal-skeleton/www/production/web/sites/default/files

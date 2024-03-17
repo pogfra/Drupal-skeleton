@@ -1,0 +1,28 @@
+command:
+    sql:
+        sync:
+            options:
+                structure-tables-key: common
+        dump:
+            options:
+                structure-tables-key: common
+    core:
+        rsync:
+            options:
+                verbose: true
+    site:
+        install:
+            options:
+                site-name: Drupal
+                account-name: 'admin'
+                account-pass: 'admin'
+                account-mail: 'admin@example.com'
+sql:
+    structure-tables:
+        common:
+            - cache
+            - 'cache_*'
+            - history
+            - 'search_*'
+            - 'sessions'
+            - 'watchdog'

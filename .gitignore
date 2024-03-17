@@ -1,0 +1,14 @@
+/.idea
+
+/vendor
+/**/node_modules
+/**/private:
+/.env
+
+/web/core
+/web/sites/default/files
+/web/modules/contrib
+/web/profiles/contrib
+/web/themes/contrib
+/web/themes/custom/app_theme/dist
+/web/libraries/
